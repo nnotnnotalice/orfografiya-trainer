@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Орфография</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+<style>
+  :root {
+    --bg: #FAF8F5;
+    --card: #ffffff;
+    --text: #0F172A;
+    --muted: #7A7060;
+    --border: #FFF9E9;
+    --accent: #3F58BB;
+    --accent-hover: #333F8C;
+    --error: #FAEADA;
+    --error-text: #7A3508;
+    --radius: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Onest", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .hidden { display: none !important; }
+
+  .login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .login-shell {
+    width: min(100%, 480px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+  .login-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .login-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+  .login-icon img {
+    width: 96px;
+    height: 96px;
+    display: block;
+    flex: 0 0 auto;
+  }
+  .login-title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 0;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 4px 8px rgba(46,56,89,.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    animation: fadeUp .3s ease both;
+  }
+  .login-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+  .login-label {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: normal;
+    color: #111827;
+  }
+  .code-input-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  .code-input-wrap::after {
+    content: "";
+    display: none;
+    position: absolute;
+    left: 17px;
+    top: 50%;
+    width: 2px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--accent);
+    transform: translateY(-50%);
+    pointer-events: none;
+    animation: caretBlink 1s steps(1, end) infinite;
+  }
+  .code-input-wrap.is-empty::after {
+    display: block;
+  }
+  .input {
+    width: 100%;
+    height: 56px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg);
+    color: var(--text);
+    caret-color: var(--accent);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .code-input-wrap.is-empty .input {
+    caret-color: transparent;
+  }
+  .input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(63,78,168,.12);
+  }
+  .btn {
+    width: 100%;
+    height: 48px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 10px 10px rgba(99,102,241,.19);
+    transition: background .2s, transform .15s, box-shadow .2s;
+  }
+  .btn:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 12px 12px rgba(99,102,241,.22);
+    transform: translateY(-1px);
+  }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; box-shadow: none; }
+  .login-error {
+    color: var(--error-text);
+    background: var(--error);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* ── экран навигации по темам ── */
+  #screenMain {
+    min-height: 100vh;
+    background: var(--bg);
+  }
+  .topics-header {
+    position: relative;
+    height: 80px;
+    padding: 0 40px;
+    background: linear-gradient(90deg, #3F58BB 0%, #233CA1 100%);
+    color: #fff9e9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .topics-header h1 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 35px;
+    font-weight: 600;
+    line-height: normal;
+    white-space: nowrap;
+  }
+  .logout-btn {
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .18s ease;
+  }
+  .logout-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: none;
+  }
+  .logout-btn:active {
+    transform: translateY(1px) scale(.99);
+  }
+  .logout-btn img {
+    width: 34px;
+    height: 34px;
+    display: block;
+  }
+  .student-pill {
+    justify-self: end;
+    background: rgba(250,248,245,.9);
+    color: #1E2937;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  .topics-page {
+    width: 100%;
+    padding: 40px;
+  }
+  .topic-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .topic-filter {
+    min-height: 32px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid #FCCC6B;
+    background: #FFF8E7;
+    color: #1F2937;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s, transform .15s;
+    white-space: nowrap;
+  }
+  .topic-filter:hover { transform: translateY(-1px); }
+  .topic-filter.active {
+    background: #3750B3;
+    border-color: #3750B3;
+    color: #FAF8F5;
+    font-weight: 700;
+  }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .topic-card {
+    min-width: 0;
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: hidden;
+    animation: cardEnter .55s cubic-bezier(.2,.8,.2,1) both;
+    transition: box-shadow .2s ease, min-height .28s ease;
+  }
+  .topic-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .topic-title {
+    min-width: 0;
+    color: #1F2937;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: normal;
+  }
+  .topic-badge {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: normal;
+    white-space: nowrap;
+    background: #D9E1FE;
+    color: #3F58BB;
+  }
+  .topic-badge.completed { background: #dcfce7; color: #166534; }
+  .topic-badge.not-started { background: #f4f6f8; color: #94a3b8; }
+
+  .topic-progress { display: flex; flex-direction: column; gap: 8px; }
+  .topic-progress-text {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+  }
+  .topic-progress-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #FAF8F5;
+    overflow: hidden;
+  }
+  .topic-progress-fill { height: 100%; border-radius: 4px; background: #fccc6b; transition: width .5s ease; }
+
+  .topic-problems {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .topic-problems-toggle, .topic-no-errors {
+    width: 100%;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: normal;
+    text-align: left;
+  }
+  .topic-problems-toggle {
+    background: #FFF8E7;
+    color: #1F2937;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .topic-card.expanded .topic-problems-toggle {
+    border-radius: 12px 12px 0 0;
+  }
+  .topic-problems-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topic-problems-title img,
+  .topic-chev {
+    width: 16px;
+    height: 16px;
+    display: block;
+    flex: 0 0 auto;
+  }
+  .topic-chev { transition: transform .2s; }
+  .topic-chev.closed { transform: rotate(180deg); }
+  .topic-no-errors {
+    background: #DCFCE7;
+    color: #15803D;
+    font-weight: 600;
+    cursor: default;
+    border-radius: 12px;
+  }
+  .topic-problems-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    opacity: 0;
+    background: #FFF8E7;
+    border-radius: 0 0 12px 12px;
+    transition: grid-template-rows .32s ease, opacity .22s ease;
+  }
+  .topic-card.expanded .topic-problems-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .topic-problem-chips {
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 0 16px;
+    transition: padding .32s ease;
+  }
+  .topic-card.expanded .topic-problem-chips {
+    padding: 16px 16px 24px;
+  }
+  .topic-problem-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #FEF3C7;
+    color: #D97706;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+  }
+  .topic-start-btn {
+    width: 100%;
+    height: 42px;
+    border: 0;
+    border-radius: 12px;
+    background: #FF4852;
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, transform .15s;
+  }
+  .topic-start-btn:hover { background: #f43d48; }
+  .topic-start-btn img {
+    width: 26px;
+    height: 26px;
+    display: block;
+  }
+
+  .topics-empty { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 14px; line-height: 1.6; }
+
+  .loader-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250, 248, 245, .72);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+  }
+  .loader {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 5px solid #EEF0FF;
+    border-top-color: var(--accent);
+    animation: spin .75s linear infinite;
+  }
+
+  /* ── экран механики «Выбери букву» ── */
+  #screenExercise {
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  #screenExercise .student-pill { display: none !important; }
+  .exercise-header {
+    position: relative;
+    min-height: 80px;
+    padding: 12px 40px 20px;
+    background: linear-gradient(90deg, #3F58BB 0%, #233CA1 100%);
+    display: grid;
+    grid-template-columns: 50px minmax(0, 1fr) 50px;
+    align-items: center;
+    gap: 20px;
+    flex: 0 0 auto;
+  }
+  .exercise-back-btn {
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 12px;
+    transition: transform .18s ease;
+    z-index: 1;
+  }
+  .exercise-back-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: none;
+  }
+  .exercise-back-btn:active {
+    transform: translateY(1px) scale(.99);
+  }
+  .exercise-back-btn img {
+    width: 26px;
+    height: 26px;
+    display: block;
+    filter: none;
+  }
+  .exercise-title {
+    grid-column: 2;
+    justify-self: center;
+    width: min(640px, 100%);
+    color: #fff9e9;
+    font-size: 35px;
+    font-weight: 600;
+    line-height: 1.12;
+    text-align: center;
+    padding: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .exercise-progress-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 8px;
+    background: #E5E7EB;
+    overflow: hidden;
+  }
+  .exercise-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #FCCC6B;
+    border-radius: 0 4px 4px 0;
+    transition: width .45s cubic-bezier(.22,1,.36,1);
+  }
+
+  .exercise-body {
+    min-height: 0;
+    flex: 1;
+    width: 100%;
+    padding: clamp(72px, 10vh, 120px) 24px clamp(64px, 9vh, 104px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(40px, 5vh, 72px);
+    position: relative;
+  }
+  .exercise-prompt {
+    width: min(100%, 680px);
+    min-height: 81px;
+    padding: 24px;
+    border-radius: 24px;
+    background: #FFF3C4;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .exercise-prompt::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #FCCC6B;
+  }
+  .exercise-prompt img {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+  }
+  .exercise-word-card {
+    width: min(100%, 720px);
+    min-height: clamp(96px, 13vh, 140px);
+    padding: 0 48px;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .exercise-word {
+    max-width: 100%;
+    color: #233CA1;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .exercise-word-piece {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+  .exercise-gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    min-height: 60px;
+    margin: 0 4px;
+    padding: 4px 16px;
+    border: 0;
+    border-radius: 12px;
+    background: #FFF5E0;
+    color: #D97706;
+    font-weight: 600;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: inset 0 2px 4px rgba(217,140,26,.15);
+    transition: background .18s, color .18s, border-color .18s, transform .18s;
+  }
+  .exercise-gap-letter {
+    display: inline-block;
+    position: relative;
+    top: -2px;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1;
+    animation: letterSwap .2s ease-out;
+  }
+  .exercise-gap.selecting,
+  .exercise-gap.preview { transform: none; }
+  .exercise-gap.checking { opacity: .72; transform: scale(.98); }
+  .exercise-gap.correct { color: #176B3A; border-color: #86D39B; background: #DFF7EA; }
+  .exercise-gap.wrong { color: #B4232B; border-color: #E24B4A; background: #FFE0E0; }
+
+  .answer-options {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    transform: none;
+  }
+  .answer-area {
+    width: min(100%, 640px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .answer-option {
+    min-width: 104px;
+    min-height: 80px;
+    padding: 0 32px;
+    border-radius: 16px;
+    border: 1px solid #E8E2D8;
+    background: #FFFDF7;
+    color: #111827;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18);
+    font-family: inherit;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .answer-option.option-enter,
+  .explain-opt.option-enter {
+    animation: quizOptionIn .46s cubic-bezier(.22,1,.36,1) both;
+  }
+  .answer-option:hover,
+  .answer-option:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(102,82,41,.18), 0 12px 24px rgba(115,92,46,.2);
+  }
+  .answer-option:active:not(:disabled) {
+    transform: translateY(3px) scale(.995);
+    box-shadow: 0 1px 0 rgba(102,82,41,.24), 0 4px 12px rgba(115,92,46,.14), inset 0 2px 4px rgba(255,255,255,.6);
+  }
+  .answer-option.active {
+    background: #FCCC6B;
+    color: #D97706;
+    border-color: transparent;
+    box-shadow: 0 4px 0 rgba(217,119,6,.25), 0 10px 22px rgba(252,204,107,.28);
+  }
+  .answer-option.correct {
+    background: #DCFCE7;
+    border-color: transparent;
+    color: #111827;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18), inset 0 2px 4px rgba(255,255,255,.6);
+    animation: correctPulse .44s ease both;
+  }
+  .answer-option.wrong {
+    background: #FEE2E2;
+    border-color: transparent;
+    color: #111827;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18), inset 0 2px 4px rgba(255,255,255,.6);
+    animation: wrongShake .34s ease both;
+  }
+  .answer-option:disabled { cursor: default; opacity: 1; }
+  .exercise-shortcuts {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.05);
+    color: #6B7280;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    line-height: normal;
+    padding: 12px 24px;
+    white-space: nowrap;
+  }
+  .exercise-shortcuts strong { color: #1F2937; }
+
+  /* ── финальные экраны сессии ── */
+  #screenResult {
+    min-height: 100vh;
+    padding: 0 24px 80px;
+    background: var(--bg);
+  }
+  .result-screen-content {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 0;
+  }
+  .result-screen-content.success,
+  .result-screen-content.finished {
+    justify-content: flex-start;
+    gap: 90px;
+    padding-top: 150px;
+  }
+  .result-screen-content.error {
+    justify-content: flex-start;
+    gap: 60px;
+    padding: 80px 56px 0;
+  }
+  .result-headline {
+    width: 100%;
+    position: relative;
+    text-align: center;
+    z-index: 2;
+  }
+  .summary-congrats {
+    width: 100%;
+    margin: 0;
+    color: #1F2937;
+    font-size: 48px;
+    line-height: normal;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: center;
+    animation: popIn .42s ease both;
+  }
+  .summary-subtitle {
+    width: 100%;
+    margin: 0;
+    color: #1F2937;
+    font-size: 32px;
+    line-height: normal;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: center;
+  }
+  .summary-list-wrapper {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+  }
+  .summary-list {
+    width: 100%;
+    max-width: 860px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .summary-list li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 49px;
+    padding: 12px 24px;
+    border-radius: 6px;
+    background: #E4F8EC;
+    color: #0A9F43;
+    font-size: 20px;
+    line-height: normal;
+    font-weight: 600;
+    white-space: nowrap;
+    animation: optionIn .24s ease both;
+  }
+  .result-buttons {
+    width: 480px;
+    max-width: calc(100vw - 48px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .result-btn {
+    width: 100%;
+    min-height: 62px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 40px;
+    border: 0;
+    border-radius: 999px;
+    background: #233CA1;
+    color: #FAF8F5;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 18px;
+    line-height: normal;
+    font-weight: 600;
+    white-space: normal;
+    cursor: pointer;
+    transition: transform .18s ease, filter .18s ease;
+  }
+  .result-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+  }
+  .result-btn:active {
+    transform: translateY(1px) scale(.99);
+  }
+  .result-btn.review-primary {
+    background: #FF4852;
+  }
+  .result-sparkle-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 1;
+  }
+  .result-sparkle {
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    left: var(--left);
+    top: var(--top);
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    background: var(--sparkle-color, #FCCC6B);
+    clip-path: polygon(50% 0, 62.37% 37.63%, 100% 50%, 62.37% 62.37%, 50% 100%, 37.63% 62.37%, 0 50%, 37.63% 37.63%);
+    transform-origin: center;
+    animation:
+      sparkleAppear 760ms cubic-bezier(.16, 1, .3, 1) var(--delay) both,
+      sparkleTwinkle 2.45s ease-in-out calc(var(--delay) + 780ms) infinite;
+  }
+
+  /* ── экран механики «Объясни орфограмму» ── */
+  #screenExplain {
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .explain-body {
+    min-height: 0;
+    flex: 1;
+    padding: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .explain-stage {
+    width: min(100%, 1120px);
+    margin-top: 88px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 96px;
+  }
+  .explain-word-wrap {
+    width: fit-content;
+    max-width: 100%;
+    padding: 16px 22px;
+    border-radius: 20px;
+    background: #FEF9EF;
+    box-shadow: 0 2px 4px rgba(242,191,89,.19), 0 6px 16px rgba(217,119,6,.13);
+    position: relative;
+    z-index: 3;
+  }
+  .explain-word {
+    color: #233CA1;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: normal;
+    white-space: nowrap;
+  }
+  .explain-highlight {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: #E3E5F0;
+    color: #233CA1;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .explain-options {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
+    position: relative;
+    z-index: 3;
+  }
+  .explain-opt {
+    min-height: 134px;
+    padding: 24px;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
+    background: #FFFDF7;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18), inset 0 2px 4px rgba(255,255,255,.6);
+    color: #1E2937;
+    font-family: inherit;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    transition: border-color .18s ease, box-shadow .18s ease, opacity .18s ease, transform .18s ease;
+  }
+  .explain-opt:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(102,82,41,.18), 0 12px 24px rgba(115,92,46,.2), inset 0 2px 4px rgba(255,255,255,.6);
+  }
+  .explain-opt:focus-visible {
+    outline: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(102,82,41,.18), 0 12px 24px rgba(115,92,46,.2), inset 0 2px 4px rgba(255,255,255,.6);
+  }
+  .explain-opt:active:not(:disabled) {
+    transform: translateY(3px) scale(.995);
+    box-shadow: 0 1px 0 rgba(102,82,41,.24), 0 4px 12px rgba(115,92,46,.14), inset 0 2px 4px rgba(255,255,255,.6);
+  }
+  .explain-opt.active {
+    background: #FCCC6B;
+    color: #D97706;
+    border-color: transparent;
+    box-shadow: 0 4px 0 rgba(217,119,6,.25), 0 10px 22px rgba(252,204,107,.28);
+  }
+  .explain-opt.correct {
+    background: #E5F1E7;
+    border-color: transparent;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18), inset 0 2px 4px rgba(255,255,255,.6);
+    animation: correctPulse .44s ease both;
+  }
+  .explain-opt.wrong {
+    background: #FEE2E2;
+    border-color: transparent;
+    box-shadow: 0 4px 0 rgba(102,82,41,.2), 0 8px 20px rgba(115,92,46,.18), inset 0 2px 4px rgba(255,255,255,.6);
+    animation: wrongShake .34s ease both;
+  }
+  .explain-opt.dim {
+    opacity: .38;
+    pointer-events: none;
+  }
+  .explain-opt:disabled {
+    cursor: default;
+  }
+
+  @media (max-width: 760px) {
+    .explain-body {
+      padding: 32px 20px 40px;
+    }
+    .explain-stage {
+      width: 100%;
+      margin-top: 56px;
+      gap: 64px;
+    }
+    .explain-word-wrap {
+      padding: 18px 24px;
+      border-radius: 20px;
+    }
+    .explain-word {
+      font-size: 30px;
+    }
+    .explain-highlight {
+      padding: 3px 7px;
+      border-radius: 8px;
+    }
+    .explain-options {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .explain-opt {
+      min-height: 96px;
+      padding: 18px 20px;
+      font-size: 20px;
+    }
+  }
+
+  @keyframes quizOptionIn {
+    from { opacity: 0; transform: translateY(3px) scale(.999); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes cardEnter {
+    from { opacity: 0; transform: translateY(28px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes optionIn {
+    from { opacity: 0; transform: translateY(10px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes sparkleAppear {
+    0% {
+      opacity: 0;
+      transform: scale(.22);
+      filter: drop-shadow(0 0 0 rgba(36,68,166,0));
+    }
+    70% {
+      opacity: 1;
+      transform: scale(1.18);
+      filter: drop-shadow(0 0 10px rgba(36,68,166,.24));
+    }
+    100% {
+      opacity: .78;
+      transform: scale(1);
+      filter: drop-shadow(0 0 4px rgba(36,68,166,.12));
+    }
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% {
+      opacity: .55;
+      transform: scale(.82);
+      filter: drop-shadow(0 0 0 rgba(36,68,166,0));
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.22);
+      filter: drop-shadow(0 0 12px rgba(36,68,166,.28));
+    }
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.025); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    55% { transform: translateX(5px); }
+    78% { transform: translateX(-2px); }
+  }
+  @keyframes letterSwap {
+    from { opacity: 0; transform: scale(.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes caretBlink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .login-wrap { padding: 32px 20px; }
+    .login-shell { gap: 36px; }
+    .login-card {
+      padding: 36px 28px;
+    }
+    .login-title { font-size: 28px; }
+    .login-label { font-size: 22px; }
+  }
+  @media (max-width: 860px) {
+    .topics-header {
+      height: 72px;
+      padding: 0 16px;
+      gap: 10px;
+    }
+    .topics-header h1 { font-size: 22px; }
+    .logout-btn {
+      width: 42px;
+      height: 42px;
+    }
+    .logout-btn img {
+      width: 30px;
+      height: 30px;
+    }
+    .student-pill {
+      font-size: 12px;
+    }
+    .topics-page { padding: 28px 20px 48px; }
+    .topic-filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .topics-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .topics-header {
+      padding: 0 12px;
+      gap: 8px;
+    }
+    .topics-header h1 { font-size: 22px; }
+    .student-pill {
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+    .topic-card { padding: 20px; }
+    .topic-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .topic-title { font-size: 18px; }
+  }
+  @media (max-width: 640px) {
+    .exercise-header {
+      min-height: 80px;
+      grid-template-columns: 42px minmax(0, 1fr) 42px;
+      padding: 12px 20px 20px;
+    }
+    .exercise-back-btn {
+      width: 42px;
+      height: 42px;
+    }
+    .exercise-back-btn img {
+      width: 24px;
+      height: 24px;
+    }
+    .exercise-title {
+      width: 100%;
+      font-size: 22px;
+      line-height: 1.18;
+      text-align: center;
+    }
+    #screenExercise {
+      background: #D9D9D9;
+      padding: 20px 32px 36px;
+    }
+    #screenExercise.hidden { display: none !important; }
+    #screenExercise:not(.hidden) {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+    }
+    #screenExercise .exercise-header,
+    #screenExercise .exercise-body {
+      max-width: 430px;
+      width: 100%;
+    }
+    #screenExercise .exercise-header {
+      min-height: 80px;
+      grid-template-columns: 42px minmax(0, 1fr) 42px;
+      border-radius: 0;
+      flex: 0 0 auto;
+      padding: 12px 20px 20px;
+    }
+    #screenExercise .exercise-body {
+      min-height: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 44px 24px 40px;
+      background: var(--bg);
+      border-radius: 0 0 40px 40px;
+      box-shadow: 0 12px 16px rgba(0,0,0,.08);
+    }
+    .exercise-prompt {
+      min-height: 72px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      font-size: 18px;
+      line-height: 1.3;
+      margin-bottom: 80px;
+    }
+    .exercise-word-card {
+      width: 100%;
+      min-height: 0;
+      padding: 0;
+      margin-bottom: 70px;
+    }
+    .exercise-word {
+      font-size: 32px;
+      line-height: 1;
+      white-space: normal;
+    }
+    .exercise-gap {
+      min-width: 49px;
+      min-height: 45px;
+      padding: 1px 3px;
+      border-width: 1.5px;
+      border-radius: 8px;
+      font-size: 32px;
+    }
+    .exercise-gap-letter { top: -1px; }
+    .answer-options {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+      padding-bottom: 0;
+      transform: none;
+    }
+    .answer-options.count-3 .answer-option:nth-child(3) {
+      grid-column: 1 / -1;
+      width: calc((100% - 14px) / 2);
+      justify-self: center;
+    }
+    .answer-options.count-2 {
+      margin-top: 48px;
+    }
+    .answer-area {
+      width: min(100%, 304px);
+    }
+    .answer-option {
+      width: 100%;
+      min-width: 0;
+      min-height: 0;
+      aspect-ratio: 1 / 1;
+      padding: 0;
+      border-radius: 20px;
+      font-size: 36px;
+    }
+    .exercise-shortcuts { display: none; }
+    #screenResult {
+      padding: 0 18px 48px;
+    }
+    .result-screen-content.success,
+    .result-screen-content.finished {
+      gap: 56px;
+      padding-top: 132px;
+    }
+    .result-screen-content.error {
+      gap: 42px;
+      padding: 72px 0 0;
+    }
+    .summary-congrats {
+      font-size: clamp(36px, 11vw, 48px);
+    }
+    .summary-subtitle {
+      font-size: clamp(24px, 7vw, 32px);
+    }
+    .summary-list {
+      gap: 10px;
+    }
+    .summary-list li {
+      min-height: 42px;
+      padding: 10px 16px;
+      font-size: 16px;
+      white-space: normal;
+    }
+    .result-buttons {
+      width: 100%;
+      max-width: none;
+    }
+    .result-btn {
+      min-height: 58px;
+      padding: 18px 24px;
+      font-size: 16px;
+    }
+  }
+  @media (max-width: 390px) {
+    #screenExercise { padding-inline: 14px; }
+    #screenExercise .exercise-body { padding-inline: 18px; }
+    .exercise-prompt { margin-bottom: 56px; }
+    .exercise-word-card { margin-bottom: 64px; }
+    .exercise-word { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="screenLogin" class="login-wrap">
+  <div class="login-shell">
+    <div class="login-head">
+      <div class="login-icon">
+        <img src="./assets/icons/login-icon.svg" alt="">
+      </div>
+      <div class="login-title">Орфография</div>
+    </div>
+    <div class="login-card">
+      <div id="loginError" class="login-error hidden"></div>
+      <label class="login-field" for="codeInput">
+        <span class="login-label">Код</span>
+        <span class="code-input-wrap is-empty">
+          <input id="codeInput" class="input" type="text"
+            autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" autofocus>
+        </span>
+      </label>
+      <button id="loginBtn" class="btn">Войти</button>
+    </div>
+  </div>
+</div>
+
+<div id="screenMain" class="hidden">
+  <div class="topics-header">
+    <button class="logout-btn" onclick="logout()" aria-label="Выйти">
+      <img src="./assets/icons/door-exit-left-beige-header.svg" alt="">
+    </button>
+    <h1>Орфограммы</h1>
+    <div id="studentPill" class="student-pill"></div>
+  </div>
+  <div class="topics-page">
+    <div id="topicFilters" class="topic-filters"></div>
+    <div id="topicsGrid" class="topics-grid"></div>
+  </div>
+</div>
+
+<div id="screenExercise" class="hidden">
+  <div class="exercise-header">
+    <button class="exercise-back-btn" onclick="exitExercise()" aria-label="Назад">
+      <img src="./assets/icons/chevron-left.svg" alt="">
+    </button>
+    <div id="exerciseTitle" class="exercise-title"></div>
+    <div class="exercise-progress-track"><div id="exerciseProgressFill" class="exercise-progress-fill"></div></div>
+  </div>
+  <div class="exercise-body">
+    <div class="exercise-prompt">
+      <img src="./assets/icons/pencil.svg" alt="">
+      <span>Какая буква пишется на месте пропуска?</span>
+    </div>
+    <div class="exercise-word-card">
+      <div id="exerciseWord" class="exercise-word"></div>
+    </div>
+    <div class="answer-area">
+      <div id="exerciseShortcuts" class="exercise-shortcuts hidden">← → — выбрать, <strong> ↳ </strong> — проверить</div>
+      <div id="answerOptions" class="answer-options"></div>
+    </div>
+  </div>
+</div>
+
+<div id="screenResult" class="hidden" aria-live="polite"></div>
+
+<div id="loaderOverlay" class="loader-overlay hidden" aria-live="polite" aria-busy="true">
+  <div class="loader"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyD_DzHkcC-kcqBryVXFG60RY1St07L7Cew",
+  authDomain:"tutor-platform-ag.firebaseapp.com",
+  projectId:"tutor-platform-ag",
+  storageBucket:"tutor-platform-ag.firebasestorage.app",
+  messagingSenderId:"581698909756",
+  appId:"1:581698909756:web:3f3df908545cd07f2a7539"
+});
+const auth = firebase.auth(), db = firebase.firestore();
+
+const LOCAL_KEY = "orfogrammy_student_id";
+let currentStudentId = null;
+
+// ── формат кода — как в index.html (домашка): нижний регистр, дефисы ──
+function normalizeCode(raw) {
+  return (raw || "").trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+function getSavedCode() { return localStorage.getItem(LOCAL_KEY) || ""; }
+function saveCode(c) { currentStudentId = c; localStorage.setItem(LOCAL_KEY, c); }
+function clearCode() { currentStudentId = null; localStorage.removeItem(LOCAL_KEY); }
+
+// ── вход по коду — логика как в index.html: без привязки к устройству, ──
+// ── код можно использовать с любого числа устройств одновременно ──
+async function loginWithCode(rawCode) {
+  const code = normalizeCode(rawCode);
+  if (!code) { showLoginError("Введи свой код"); return; }
+
+  setLoginLoading(true);
+  try {
+    await auth.signInAnonymously();
+    const uid = auth.currentUser.uid;
+    const ref = db.collection("students").doc(code);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      showLoginError("Код не найден. Спроси репетитора.");
+      setLoginLoading(false);
+      return;
+    }
+    await ref.update({
+      student_id: code,
+      owner_uid: uid,
+      last_seen_at: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    saveCode(code);
+    showMain();
+  } catch (e) {
+    console.error(e);
+    showLoginError("Что-то пошло не так. Попробуй ещё раз.");
+    setLoginLoading(false);
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById("loginError");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+function setLoginLoading(on) {
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = on;
+  btn.textContent = on ? "Проверяю…" : "Войти";
+  setLoading(on);
+}
+
+function setLoading(isLoading) {
+  document.getElementById("loaderOverlay")?.classList.toggle("hidden", !isLoading);
+}
+
+// ── ссылку на опубликованный CSV подставь сюда, когда таблица будет готова ──
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZDE4zTMVEintoUHgPZBC4aZh_0p_Udk0iwulDI0iAvmO-Ek4N5CMVuccG2UbZmBcrc-eAVW39dWLJ/pub?gid=0&single=true&output=csv";
+
+// Свежий локальный снимок таблицы: нужен, чтобы слова были доступны при локальном запуске,
+// даже если Google CSV временно не загрузился.
+const WORDS_CSV_SNAPSHOT = String.raw`category_title,topic_id,category,topic_title,mechanic,word_id,word_display,correct_letter,wheel_options,correct_rule,wrong_rules,is_active
+Корень,Проверяемые гласные,koren,proveryaemye-glasnye,choose_letter,1,благосл_вение,о,а; о,,,FALSE
+Приставка,З и С на конце приставок,pristavka,z-s-na-konce-pristavok,choose_letter,1,рас_вет,с,з; с,,,FALSE
+Объяснение орфограмм,З и С на конце приставок,pristavka,objyasnenie-orfogramm,explain,1,мирово[з]зрение,,,"З пишется потому, что корень начинается на звонкий согласный","З пишется потому, что приставки С не бывает; написание З зависит от значения",FALSE
+Объяснение орфограмм,Чередующиеся гласные,koren,objyasnenie-orfogramm,explain,2,р[а]стение,,,"А пишется потому, что корень кончается на СТ","А пишется потому, что это — слово-исключение; написание А зависит от значения",FALSE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,1,пол_щий (полоть),ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,2,се_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,3,рассматрива_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,4,пен_щееся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,5,логично мысл_щий ученик,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,6,мел_щий муку агрегат,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,7,прогрева_мое,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,8,слыш_щийся,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,9,брюзж_щий,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,10,лет_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,11,завис_щие от него обстоятельства,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,12,терп_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,13,леле_щая,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,14,леч_щий врач,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,15,рису_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,16,рекоменду_мая литература,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,17,составля_мый документ,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,18,мо_щиеся,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,19,реша_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,20,проверя_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,21,продава_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,22,доказыва_мое обвинение,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,23,чита_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,24,колыш_щиеся (травы),у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,25,гон_щий табун лошадей пастух,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,26,пил_щий дрова,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,27,воплоща_мая мечта,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,28,знач_щееся в фондах количество книг,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,29,ненавид_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,30,корм_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,31,пен_щийся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,32,бор_щийся,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,33,сража_щиеся воины,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,34,пиш_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,35,ороша_щий землю,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,36,вар_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,37,ненавид_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,38,раду_щийся,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,39,вед_мый человек,о,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,40,зыбл_щаяся поверхность моря,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,41,мысл_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,42,та_щее мороженое,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,43,дыш_щий,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,44,блещ_щий умом,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,45,вид_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,46,слыш_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,47,посыла_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,48,замеча_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,49,кол_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,50,мел_щая кофе машинка,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,51,чита_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,52,стро_щееся здание,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,53,подозрева_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,54,огнедыш_щий,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,55,готов_щийся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,56,трепещ_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,57,дорогосто_щая,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,58,пыш_щий здоровьем,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,59,независ_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,60,движ_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,61,контролиру_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,62,жал_щие насекомые,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,63,всеми уважа_мый человек,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,64,дремл_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,65,волну_щийся,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,66,сыпл_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,67,внемл_щий совету,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,68,колебл_щийся ковыль,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,69,люб_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,70,приемл_мое решение,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,71,изменя_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,72,чувству_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,73,скоропорт_щиеся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,74,стро_щийся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,75,муч_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,76,трудновоспиту_мый подросток,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,77,сол_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,78,занима_мая должность,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,79,ро_щий землю,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,80,маш_щий (руками),у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,81,ищ_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,82,оправдыва_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,83,незыбл_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,84,брезж_щий рассвет,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,85,знач_щий,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,86,недавно слыш_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,87,игра_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,88,движ_щийся,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,89,пор_щий плетью,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,90,пригрева_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,91,ссор_щийся,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,92,гуля_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,93,кле_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,94,хлопоч_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,95,незабыва_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,96,отправля_мые письма,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,97,выкрикива_щая,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,98,чист_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,99,колебл_мые (ветром),е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,100,скач_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,101,независ_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,102,изуча_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,103,нес_мый ветром,о,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,104,вид_мое затмение,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,105,ре_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,106,дорогосто_щие товары,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,107,зна_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,108,немысл_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,109,оклеива_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,110,не облага_мые налогом услуги,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,111,вер_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,112,кудахч_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,113,исполня_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,114,хлопоч_щая у плиты хозяйка,у,у; ю; а; я,,,FALSE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,115,медл_щий (с выбором),я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,116,обвиня_мый в угоне машины,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,117,гоня_щий (птиц с огорода),ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,118,нянч_щая,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,119,хлещ_щий,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,120,слыш_щий,а,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,121,невид_мый,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,122,ре_щие знамена,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,123,волну_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,124,уважа_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,125,плещ_щийся,у,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,126,танцу_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,127,разыскива_мый раритет,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,128,запреща_щая директива,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,129,оканчива_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,130,независ_мая комиссия,и,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,131,совету_щий,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,132,кол_щее (оружие),ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,133,обсужда_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,134,стел_щийся,ю,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,135,покупа_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,136,узнава_мый,е,и; е; о,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,137,цен_щий,я,у; ю; а; я,,,TRUE
+Суффикс,Суффиксы причастий,suffiks,suffiksi-prichastiy,choose_letter,138,вид_мый,и,и; е; о,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,1,придум_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,2,вспах_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,3,выслуш_нное замечание,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,4,купл_нная книга,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,5,услыш_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,6,посеребр_ны,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,7,завар_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,8,просмотр_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,9,свар_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,10,незамеч_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,11,выпар_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,12,разгруж_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,13,нетопл_ная печь,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,14,обиж_нный брат,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,15,выкач_нная из бака нефть,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,16,измен_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,17,разбавл_нный настой трав,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,18,наруш_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,19,перевеш_нный товар,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,20,увенч_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,21,брош_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,22,высме_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,23,испуг_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,24,расстрел_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,25,вещь купл_на,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,26,занавеш_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,27,достро_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,28,ускор_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,29,сказ_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,30,допил_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,31,удосто_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,32,рассе_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,33,завеш_нная коврами квартира,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,34,задерж_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,35,кле_ный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,36,выгул_нная (собака),я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,37,потуш_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,38,замеш_нный в преступлении человек,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,39,испещр_нный,е,и; е; а; я,,,FALSE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,40,посе_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,41,осып_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,42,разгруж_нная баржа,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,43,заряж_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,44,смеш_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,45,обвяз_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,46,застро_нные домами окраины,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,47,показ_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,48,ове_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,49,посаж_нное дерево,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,50,разбуж_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,51,вял_ная рыба,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,52,увид_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,53,замеч_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,54,завеш_нная (картинами),е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,55,увеш_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,56,выкач_нная (вода),а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,57,замеш_нное тесто,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,58,обеспоко_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,59,укороч_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,60,надломл_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,61,оседл_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,62,завещ_нный (дом),а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,63,перевеш_нное из шкафа пальто,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,64,нарисов_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,65,навеш_нная дверь,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,66,насто_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,67,понош_нное (платье),е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,68,обстрел_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,69,скле_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,70,пристрел_нный кабан,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,71,развеш_нные по стенам картины,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,72,замеш_но (тесто),е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,73,напис_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,74,взлеле_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,75,выкач_нная из подвала бочка,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,76,навеш_нное бельё,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,77,осмол_нная лодка,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,78,высуш_нное белье,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,79,нахмур_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,80,скро_нный (костюм),е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,81,стрел_ный воробей,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,82,намасл_нные блины,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,83,отча_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,84,связ_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,85,зате_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,86,развеш_нные сети,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,87,скош_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,88,подвеш_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,89,скач_нный (с диска файл),а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,90,уполномоч_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,91,пристрел_нное ружьё,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,92,взлохмач_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,93,выслуш_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,94,провер_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,95,взволнов_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,96,обездвиж_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,97,осме_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,98,постро_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,99,просе_нный,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,100,прочит_нный,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,101,насыщ_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,102,замасл_нный,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед Н и НН в причастиях,suffiks,glasnye-pered-N-prich,choose_letter,103,закле_на,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,1,накле_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,2,свер_вший (накануне),и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,3,наруш_вший (права),и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,4,разве_вший (сомнения),я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,5,разбав_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,6,ре_вшие (флаги),я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,7,задерж_вшийся,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,8,расстро_вшись,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,9,муч_вшийся,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,10,выздоров_вший (юноша),е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,11,предвид_вший,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,12,будораж_вший (воображение),и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,13,прав_вший (лошадьми),и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,14,прокашл_вшийся,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,15,вылин_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,16,замысл_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,17,раска_вшись,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,18,понаде_вшийся (на удачу),я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,19,учу_вший (запах),я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,20,оправдыв_вший,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,21,леле_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,22,почу_в,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,23,раска_лся,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,24,раскле_в,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,25,прола_л,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,26,прома_вшись,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,27,чу_л,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,28,зате_в,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,29,ненавид_вший,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,30,постро_в,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,31,увид_в,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,32,завис_л,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,33,разве_в,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,34,объезд_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,35,отча_вшись,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,36,наде_вшийся,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,37,ре_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,38,увид_л,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,39,замет_в,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,40,закле_л,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,41,посе_в,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,42,ма_лся,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,43,запомн_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,44,прове_л,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,45,окле_в,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,46,очист_вшийся,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,47,отча_лся,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,48,раста_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,49,развес_вший фотографии,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,50,выгор_вший участок,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,51,выкат_вшийся клубок,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,52,состар_вшийся,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,53,высвет_вший проблему,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,54,обид_вший,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,55,слуш_вший,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,56,вид_вший,е,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,57,слыш_вший,а,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,58,кле_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,59,стро_вший,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,60,се_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,61,ве_вший,я,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,62,зата_вший обиду,и,и; е; а; я,,,TRUE
+Суффикс,Гласные перед суффиксом прошедшего времени,suffiks,glasnye-pered-N-proshed-vr,choose_letter,63,ка_вшийся,я,и; е; а; я,,,TRUE`;
+
+let wordsData = {};      // { topicId: { title, category, categoryTitle, mechanic, words: [...] } }
+let categoryOrder = [];  // порядок фильтров сверху, как в таблице
+let currentCategoryFilter = "Все";
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  const s = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (s[i + 1] === '"') { field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += c;
+      }
+    } else {
+      if (c === '"') { inQuotes = true; }
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else { field += c; }
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => !(r.length === 1 && r[0] === ""));
+}
+
+function splitOptions(str) {
+  return (str || "").split(";").map(s => s.trim()).filter(Boolean);
+}
+
+async function loadWordsFromSheet() {
+  let csvText = WORDS_CSV_SNAPSHOT || "";
+
+  if (SHEET_CSV_URL) {
+    try {
+      const res = await fetch(`${SHEET_CSV_URL}&_=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Не удалось загрузить таблицу со словами");
+      csvText = await res.text();
+    } catch (e) {
+      if (!csvText) throw e;
+      console.warn("Google CSV не загрузился, использую локальный снимок таблицы", e);
+    }
+  }
+
+  if (!csvText) { wordsData = {}; categoryOrder = []; return; }
+  const rows = parseCSV(csvText);
+  const headers = rows[0].map(h => h.trim());
+  const result = {};
+  const catOrder = [];
+
+  rows.slice(1).forEach(row => {
+    const item = {};
+    headers.forEach((h, i) => { item[h] = (row[i] || "").trim(); });
+    if (String(item.is_active).toUpperCase() !== "TRUE") return;
+
+    // ── фактическое назначение колонок в твоей таблице ──
+    // D (заголовок "topic_title") = слаг темы, group key для карточек: proveryaemye-glasnye
+    // A (заголовок "category_title") = название вкладки-фильтра сверху: Корень / Объяснение орфограмм
+    // B (заголовок "topic_id") = человекочитаемое название: либо название темы (choose_letter),
+    //                             либо конкретное правило внутри "Объяснения орфограмм" (explain)
+    const tabTitle = item.category_title || item.category || "Другое";
+    const mechanic = item.mechanic || "choose_letter";
+    const baseTopicSlug = item.topic_title;
+    if (!baseTopicSlug || !item.word_id) return;
+
+    const ruleSlug = normalizeCode(item.topic_id || baseTopicSlug);
+    const topicSlug = mechanic === "explain" ? `${baseTopicSlug}__${ruleSlug}` : baseTopicSlug;
+
+    if (!result[topicSlug]) {
+      result[topicSlug] = {
+        // для explain отдельная карточка на каждую орфограмму/правило,
+        // для choose_letter — из читаемого названия темы (колонка B)
+        title: item.topic_id || (mechanic === "explain" ? tabTitle : baseTopicSlug),
+        tabTitle: tabTitle,
+        mechanic: mechanic,
+        words: []
+      };
+    }
+    if (!catOrder.includes(tabTitle)) catOrder.push(tabTitle);
+
+    // word_id в таблице — номер внутри темы, может повторяться между темами.
+    // Для explain теперь включаем конкретную орфограмму в id, а старый id
+    // оставляем как legacy, чтобы уже сохранённый прогресс продолжал учитываться.
+    const legacyWordId = `${baseTopicSlug}-${item.word_id}`;
+    const globalWordId = `${topicSlug}-${item.word_id}`;
+
+    result[topicSlug].words.push({
+      word_id: globalWordId,
+      legacy_word_id: legacyWordId,
+      topic_slug: topicSlug,
+      ruleLabel: item.topic_id || "",       // конкретное правило — для статистики по ошибкам в объяснениях
+      category: item.category,
+      mechanic: mechanic,
+      word_display: item.word_display,
+      correct_letter: item.correct_letter,
+      wheel_options: splitOptions(item.wheel_options),
+      correct_rule: item.correct_rule,
+      wrong_rules: splitOptions(item.wrong_rules)
+    });
+  });
+
+  wordsData = result;
+  categoryOrder = catOrder;
+}
+
+// ── прогресс по словам — тот же паттерн, что в тренажёре ударений ──
+function getProgressStorageKey() { return `orfo_seenWords_${currentStudentId}`; }
+function getSeenWords() {
+  try { return JSON.parse(localStorage.getItem(getProgressStorageKey()) || "{}"); }
+  catch (e) { return {}; }
+}
+function saveSeenWords(seenWords) { localStorage.setItem(getProgressStorageKey(), JSON.stringify(seenWords)); }
+
+async function loadSeenWordsFromFirebase(studentId) {
+  const snap = await db.collection("students").doc(studentId)
+    .collection("trainerProgress").doc("orfogrammy")
+    .collection("wordProgress").get();
+  const fromFirebase = {};
+  const migrations = [];
+
+  snap.forEach(doc => {
+    const entry = doc.data();
+    const word = findWordDefinitionByProgressId(doc.id);
+    if (word && !entry.problem_display_word) {
+      entry.problem_display_word = buildProblemDisplayWord(word);
+      migrations.push(doc.ref.set({ problem_display_word: entry.problem_display_word }, { merge: true }));
+    }
+    fromFirebase[doc.id] = entry;
+  });
+
+  saveSeenWords({ ...getSeenWords(), ...fromFirebase });
+  if (migrations.length) {
+    Promise.allSettled(migrations).catch(e => {
+      console.warn("Не удалось обновить короткие названия проблемных слов", e);
+    });
+  }
+}
+
+function findWordDefinitionByProgressId(progressId) {
+  for (const topic of Object.values(wordsData)) {
+    const word = topic.words.find(item => item.word_id === progressId || item.legacy_word_id === progressId);
+    if (word) return word;
+  }
+  return null;
+}
+
+function getAllWordsByTopic(topicId) { return (wordsData[topicId] && wordsData[topicId].words) || []; }
+
+function getSeenWordEntry(seen, word) {
+  return seen[word.word_id] || (word.legacy_word_id ? seen[word.legacy_word_id] : null) || null;
+}
+
+function getProgressByTopic(topicId) {
+  const all = getAllWordsByTopic(topicId);
+  const seen = getSeenWords();
+  const seenCount = all.filter(w => getSeenWordEntry(seen, w)).length;
+  const totalCount = all.length;
+  return { seenCount, totalCount, percent: totalCount ? Math.round(seenCount / totalCount * 100) : 0 };
+}
+
+function isUnresolved(item) {
+  if (!item) return false;
+  if (Number(item.correct_streak || 0) >= REVIEW_CORRECT_STREAK) return false;
+  if (item.needs_review === true) return true;
+  if (item.needs_review === false) return false;
+  return Number(item.wrong_count || 0) > Number(item.correct_count || 0);
+}
+
+function getUnresolvedWordsByTopic(topicId) {
+  const seen = getSeenWords();
+  const entries = [];
+  getAllWordsByTopic(topicId).forEach(word => {
+    const progress = getSeenWordEntry(seen, word);
+    if (isUnresolved(progress)) {
+      entries.push({
+        ...progress,
+        word_id: word.word_id,
+        problem_display_word: buildProblemDisplayWord(word)
+      });
+    }
+  });
+  return entries;
+}
+
+function wordCountLabel(n) {
+  n = Math.abs(Number(n) || 0);
+  const lastTwo = n % 100, lastOne = n % 10;
+  return (lastOne === 1 && lastTwo !== 11) ? "слово" : (lastOne >= 2 && lastOne <= 4 && (lastTwo < 10 || lastTwo >= 20) ? "слова" : "слов");
+}
+
+function renderTopicFilters() {
+  const wrap = document.getElementById("topicFilters");
+  const tabs = ["Все", ...categoryOrder];
+  wrap.innerHTML = tabs.map((t, i) =>
+    `<button class="topic-filter${currentCategoryFilter === t ? " active" : ""}" data-tab="${escHtml(t)}">${escHtml(t)}</button>`
+  ).join("");
+  wrap.querySelectorAll(".topic-filter").forEach(btn => {
+    btn.addEventListener("click", () => setCategoryFilter(btn.dataset.tab));
+  });
+}
+
+function setCategoryFilter(tab) { currentCategoryFilter = tab; renderTopicFilters(); renderTopicsGrid(); }
+
+function renderStudentPill() {
+  const pill = document.getElementById("studentPill");
+  if (!pill) return;
+  pill.textContent = (currentStudentId || "").toUpperCase();
+}
+
+function renderTopicsGrid() {
+  const grid = document.getElementById("topicsGrid");
+  const topicSlugs = Object.keys(wordsData).filter(slug =>
+    currentCategoryFilter === "Все" || wordsData[slug].tabTitle === currentCategoryFilter
+  );
+
+  if (!topicSlugs.length) {
+    grid.innerHTML = `<div class="topics-empty">Пока нет ни одной темы. Как только таблица со словами будет готова, темы появятся здесь.</div>`;
+    return;
+  }
+
+  grid.innerHTML = topicSlugs.map((topicSlug, index) => {
+    const topic = wordsData[topicSlug];
+    const progress = getProgressByTopic(topicSlug);
+    const unresolved = getUnresolvedWordsByTopic(topicSlug);
+    const isNotStarted = progress.seenCount === 0;
+    const isCompleted = progress.totalCount > 0 && progress.seenCount >= progress.totalCount;
+    const badgeClass = isCompleted ? "completed" : (isNotStarted ? "not-started" : "");
+    const badgeText = isCompleted ? "Решено ✓" : (isNotStarted ? "Не начато" : "В процессе");
+
+    const problemsHtml = unresolved.length
+      ? `<div class="topic-problems">
+           <button class="topic-problems-toggle" data-toggle="${escHtml(topicSlug)}" aria-expanded="false">
+             <span class="topic-problems-title">
+               <img src="./assets/icons/alert-circle.svg" alt="">
+               <span>Проблемные слова</span>
+             </span>
+             <img class="topic-chev closed" data-chev="${escHtml(topicSlug)}" src="./assets/icons/chevron-up.svg" alt="">
+           </button>
+           <div class="topic-problems-panel" data-panel="${escHtml(topicSlug)}">
+             <div class="topic-problem-chips">
+               ${unresolved.map(w => `<span class="topic-problem-chip">${escHtml(w.problem_display_word || w.display_word || w.word_display || "")}</span>`).join("")}
+             </div>
+           </div>
+         </div>`
+      : (isNotStarted ? "" : `<div class="topic-no-errors">Ошибок нет</div>`);
+
+    return `<div class="topic-card" style="animation-delay:${index * 80}ms">
+      <div class="topic-card-header">
+        <div class="topic-title">${escHtml(topic.title)}</div>
+        <div class="topic-badge ${badgeClass}">${badgeText}</div>
+      </div>
+      <div class="topic-progress">
+        <div class="topic-progress-text"><span>${progress.seenCount} / ${progress.totalCount} ${wordCountLabel(progress.totalCount)}</span><span>${progress.percent}%</span></div>
+        <div class="topic-progress-bar"><div class="topic-progress-fill" style="width:${progress.percent}%"></div></div>
+      </div>
+      ${problemsHtml}
+      <button class="topic-start-btn" data-start="${escHtml(topicSlug)}" aria-label="Начать">
+        <img src="./assets/icons/play.svg" alt="">
+      </button>
+    </div>`;
+  }).join("");
+
+  grid.querySelectorAll("[data-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => toggleProblems(btn.dataset.toggle));
+  });
+  grid.querySelectorAll("[data-start]").forEach(btn => {
+    btn.addEventListener("click", () => startTopic(btn.dataset.start));
+  });
+}
+
+function toggleProblems(topicSlug) {
+  const panel = document.querySelector(`[data-panel="${CSS.escape(topicSlug)}"]`);
+  const chev = document.querySelector(`[data-chev="${CSS.escape(topicSlug)}"]`);
+  const button = document.querySelector(`[data-toggle="${CSS.escape(topicSlug)}"]`);
+  const card = button?.closest(".topic-card");
+  if (!panel || !chev || !button || !card) return;
+  const shouldExpand = !card.classList.contains("expanded");
+
+  document.querySelectorAll(".topic-card.expanded").forEach(openCard => {
+    if (openCard === card) return;
+    openCard.classList.remove("expanded");
+    const openButton = openCard.querySelector(".topic-problems-toggle");
+    const openChev = openCard.querySelector(".topic-chev");
+    openButton?.setAttribute("aria-expanded", "false");
+    openChev?.classList.add("closed");
+  });
+
+  card.classList.toggle("expanded", shouldExpand);
+  chev.classList.toggle("closed", !shouldExpand);
+  button.setAttribute("aria-expanded", String(shouldExpand));
+}
+
+// ── механика «Выбери букву» ──────────────────────────────────────────────
+const SESSION_WORD_LIMIT = 12;
+const REVIEW_CORRECT_STREAK = 3;
+const SHORTCUTS_HINT_KEY = "orfo_shortcutsHintSeen";
+const EXPLAIN_SHORTCUTS_HINT_KEY = "orfo_explainShortcutsHintSeen";
+
+let sessionTopicSlug = null;
+let sessionWords = [];
+let sessionIndex = 0;
+let sessionMistakes = [];
+let sessionAnsweredIndexes = new Set();
+let isReviewMode = false;
+let lastErrorsForReview = [];
+
+function getStudentScopedHintKey(baseKey) {
+  return currentStudentId ? `${baseKey}_${currentStudentId}` : baseKey;
+}
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildDisplayWord(word) {
+  if (!word.word_display) return "";
+  if (word.mechanic === "explain") return word.word_display.replace(/\[(.)\]/, "$1");
+  return word.word_display.replace("_", word.correct_letter || "_");
+}
+
+function buildProblemDisplayWord(word) {
+  const raw = word.word_display || "";
+  const markerIndex = raw.indexOf("_") >= 0 ? raw.indexOf("_") : raw.search(/\[.\]/);
+  if (markerIndex < 0) return buildDisplayWord(word).split(/\s+/)[0] || "";
+
+  const before = raw.slice(0, markerIndex);
+  const tokenStart = before.search(/\S*$/);
+  const after = raw.slice(markerIndex);
+  const tokenEndMatch = after.match(/\s/);
+  const tokenEnd = tokenEndMatch ? markerIndex + tokenEndMatch.index : raw.length;
+  const token = raw.slice(tokenStart < 0 ? 0 : tokenStart, tokenEnd);
+
+  return token
+    .replace("_", word.correct_letter || "_")
+    .replace(/\[(.)\]/, "$1")
+    .replace(/^[("']+|[)"',.;:!?]+$/g, "");
+}
+
+function buildSessionWords(topicSlug) {
+  const topic = wordsData[topicSlug];
+  const all = topic.words;
+  const seen = getSeenWords();
+  const byId = new Map(all.map(w => [w.word_id, w]));
+
+  const unresolvedIds = getUnresolvedWordsByTopic(topicSlug).map(item => item.word_id);
+  const unresolved = unresolvedIds.map(id => byId.get(id)).filter(Boolean);
+  const usedIds = new Set(unresolved.map(w => w.word_id));
+
+  const allSeen = all.every(w => getSeenWordEntry(seen, w));
+  if (!allSeen) {
+    const newWords = all.filter(w => !usedIds.has(w.word_id) && !getSeenWordEntry(seen, w));
+    return [...unresolved, ...newWords].slice(0, SESSION_WORD_LIMIT);
+  }
+  const shuffled = shuffleArray(all.filter(w => !usedIds.has(w.word_id)));
+  return [...unresolved, ...shuffled].slice(0, SESSION_WORD_LIMIT);
+}
+
+function startTopic(topicSlug) {
+  const topic = wordsData[topicSlug];
+  if (!topic) return;
+  if (topic.mechanic !== "choose_letter") {
+    startExplainTopic(topicSlug);
+    return;
+  }
+  sessionTopicSlug = topicSlug;
+  sessionWords = buildSessionWords(topicSlug);
+  if (!sessionWords.length) { alert("В этой теме пока нет слов."); return; }
+  sessionIndex = 0;
+  sessionMistakes = [];
+  sessionAnsweredIndexes = new Set();
+  isReviewMode = false;
+  lastErrorsForReview = [];
+  document.getElementById("screenMain").classList.add("hidden");
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenExercise").classList.remove("hidden");
+  syncShortcutsHint();
+  updateExerciseProgress();
+  showQuestion();
+}
+
+function syncShortcutsHint() {
+  const hint = document.getElementById("exerciseShortcuts");
+  if (!hint) return;
+  const key = getStudentScopedHintKey(SHORTCUTS_HINT_KEY);
+  if (localStorage.getItem(key)) {
+    hint.classList.add("hidden");
+    return;
+  }
+  hint.classList.remove("hidden");
+}
+
+function completeShortcutsHint() {
+  const hint = document.getElementById("exerciseShortcuts");
+  const key = getStudentScopedHintKey(SHORTCUTS_HINT_KEY);
+  localStorage.setItem(key, "1");
+  hint?.classList.add("hidden");
+}
+
+function isDesktopNavigation() {
+  return window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+}
+
+function exitExercise() {
+  document.getElementById("screenExercise").classList.add("hidden");
+  document.getElementById("screenExplain")?.classList.add("hidden");
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenMain").classList.remove("hidden");
+  isReviewMode = false;
+  renderTopicFilters();
+  renderTopicsGrid();
+}
+
+function renderWordWithGap(wordDisplay, letter, state) {
+  const idx = (wordDisplay || "").indexOf("_");
+  if (idx === -1) return escHtml(wordDisplay || "");
+  const before = wordDisplay.slice(0, idx);
+  const after = wordDisplay.slice(idx + 1);
+  const letterHtml = letter ? `<span class="exercise-gap-letter">${escHtml(letter)}</span>` : "";
+  const gapHtml = `<span class="exercise-gap ${state || "preview"}">${letterHtml}</span>`;
+  const beforeMatch = before.match(/^(.*?)(\S*)$/);
+  const afterMatch = after.match(/^(\S*)([\s\S]*)$/);
+  const prefix = beforeMatch ? beforeMatch[1] : "";
+  const wordStart = beforeMatch ? beforeMatch[2] : before;
+  const wordEnd = afterMatch ? afterMatch[1] : "";
+  const suffix = afterMatch ? afterMatch[2] : "";
+  return `${escHtml(prefix)}<span class="exercise-word-piece">${escHtml(wordStart)}${gapHtml}${escHtml(wordEnd)}</span>${escHtml(suffix)}`;
+}
+
+// ── выбор буквы кнопками ────────────────────────────────────────────────
+let answerState = "idle"; // idle | preview | checking | correct | wrong
+let answerOptions = [];
+let answerSelectedIndex = -1;
+let answerSelectionMode = "none"; // none | keyboard | pointer
+
+function renderAnswerButtons() {
+  const wrap = document.getElementById("answerOptions");
+  wrap.className = `answer-options count-${answerOptions.length}`;
+  wrap.innerHTML = answerOptions.map((opt, i) =>
+    `<button type="button" class="answer-option option-enter${answerSelectionMode === "keyboard" && i === answerSelectedIndex ? " active" : ""}" data-answer="${i}" aria-label="Выбрать ${escHtml(opt)}" style="animation-delay:${i * 20}ms">${escHtml(opt)}</button>`
+  ).join("");
+  wrap.querySelectorAll(".answer-option").forEach(btn => {
+    btn.addEventListener("click", () => selectAnswer(Number(btn.dataset.answer), true, "pointer"));
+    btn.addEventListener("animationend", () => btn.classList.remove("option-enter"), { once: true });
+  });
+}
+
+function updateAnswerButtons() {
+  document.querySelectorAll(".answer-option").forEach((btn, i) => {
+    btn.classList.toggle("active", answerSelectionMode === "keyboard" && i === answerSelectedIndex);
+  });
+}
+
+function updateAnswerWord() {
+  const word = sessionWords[sessionIndex];
+  const letter = answerSelectedIndex >= 0 ? answerOptions[answerSelectedIndex] : "";
+  document.getElementById("exerciseWord").innerHTML = renderWordWithGap(word.word_display, letter, answerState);
+}
+
+function updateExerciseProgress() {
+  const percent = getSessionProgressPercent();
+  const fill = document.getElementById("exerciseProgressFill");
+  if (fill) fill.style.width = percent + "%";
+}
+
+function updateExplainProgress() {
+  const percent = getSessionProgressPercent();
+  const fill = document.getElementById("explainProgressFill");
+  if (fill) fill.style.width = percent + "%";
+}
+
+function getSessionProgressPercent() {
+  const total = sessionWords.length;
+  const answered = Math.min(sessionAnsweredIndexes.size, total);
+  return total ? Math.round((answered / total) * 100) : 0;
+}
+
+function registerAnsweredWord() {
+  sessionAnsweredIndexes.add(sessionIndex);
+  updateExerciseProgress();
+  updateExplainProgress();
+}
+
+function selectAnswer(index, shouldSubmit, mode = "keyboard") {
+  if (answerState === "checking" || answerState === "correct") return;
+  answerSelectedIndex = index;
+  answerSelectionMode = mode;
+  answerState = "preview";
+  updateAnswerButtons();
+  updateAnswerWord();
+  document.querySelector(`[data-answer="${index}"]`)?.focus();
+  if (shouldSubmit) submitAnswer();
+}
+
+function selectAnswerNext() {
+  selectAnswer(answerSelectedIndex < 0 ? 0 : (answerSelectedIndex + 1) % answerOptions.length, false, "keyboard");
+}
+
+function selectAnswerPrev() {
+  selectAnswer(answerSelectedIndex < 0 ? answerOptions.length - 1 : (answerSelectedIndex - 1 + answerOptions.length) % answerOptions.length, false, "keyboard");
+}
+
+function onAnswerKeydown(e) {
+  if (answerState === "checking" || answerState === "correct") return;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectAnswerNext(); }
+  else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectAnswerPrev(); }
+  else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); submitAnswer(); }
+}
+
+function submitAnswer() {
+  if (answerState === "checking" || answerState === "correct") return;
+  if (answerSelectedIndex < 0) return;
+  answerState = "checking";
+  updateAnswerWord();
+  document.querySelectorAll(".answer-option").forEach(btn => btn.disabled = true);
+
+  const word = sessionWords[sessionIndex];
+  const letter = answerOptions[answerSelectedIndex];
+  const isCorrect = letter === word.correct_letter;
+  markWordAsSeen(word, isCorrect);
+
+  const selectedBtn = document.querySelector(`[data-answer="${answerSelectedIndex}"]`);
+  const correctIndex = answerOptions.findIndex(opt => opt === word.correct_letter);
+  const correctBtn = correctIndex >= 0 ? document.querySelector(`[data-answer="${correctIndex}"]`) : null;
+  if (isCorrect) {
+    answerState = "correct";
+    registerAnsweredWord();
+    completeShortcutsHint();
+    updateAnswerWord();
+    selectedBtn?.classList.add("correct");
+    setTimeout(() => { sessionIndex++; showQuestion(); }, 1200);
+  } else {
+    answerState = "wrong";
+    updateAnswerWord();
+    selectedBtn?.classList.add("wrong");
+    correctBtn?.classList.add("correct");
+    sessionMistakes.push(word);
+    setTimeout(() => {
+      answerState = "preview";
+      selectedBtn?.classList.remove("wrong");
+      correctBtn?.classList.remove("correct");
+      document.querySelectorAll(".answer-option").forEach(btn => btn.disabled = false);
+      updateAnswerWord();
+      document.querySelector(`[data-answer="${answerSelectedIndex}"]`)?.focus();
+    }, 1800);
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (document.getElementById("screenExercise").classList.contains("hidden")) return;
+  onAnswerKeydown(e);
+});
+
+function showQuestion() {
+  if (sessionIndex >= sessionWords.length) { finishSession(); return; }
+  const word = sessionWords[sessionIndex];
+
+  document.getElementById("exerciseTitle").textContent = wordsData[sessionTopicSlug].title;
+  updateExerciseProgress();
+
+  answerOptions = word.wheel_options;
+  answerSelectedIndex = -1;
+  answerSelectionMode = "none";
+  answerState = "idle";
+  renderAnswerButtons();
+  updateAnswerWord();
+}
+
+function finishSession() {
+  document.getElementById("screenExercise").classList.add("hidden");
+  document.getElementById("screenExplain")?.classList.add("hidden");
+  document.getElementById("screenMain").classList.add("hidden");
+
+  const errors = uniqueWords(sessionMistakes);
+  lastErrorsForReview = errors.slice();
+  const hasErrors = errors.length > 0;
+  const resultMode = isReviewMode && !hasErrors ? "finished" : (hasErrors ? "error" : "success");
+
+  renderResultScreen(resultMode, errors);
+  isReviewMode = false;
+  updateTrainerCabinetSummary();
+}
+
+function uniqueWords(words) {
+  const seen = new Set();
+  return words.filter(word => {
+    if (!word || seen.has(word.word_id)) return false;
+    seen.add(word.word_id);
+    return true;
+  });
+}
+
+function makeResultBtn(label, handler) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "result-btn";
+  btn.textContent = label;
+  btn.addEventListener("click", handler);
+  return btn;
+}
+
+function getRandomPerfectResultTitle() {
+  const titles = [
+    "Ни одной ошибки!",
+    "Идеально!",
+    "Всё верно!"
+  ];
+  return titles[Math.floor(Math.random() * titles.length)];
+}
+
+function renderResultScreen(mode, errors) {
+  const screen = document.getElementById("screenResult");
+  const title = mode === "finished" ? "Всё отработано!" : getRandomPerfectResultTitle();
+  screen.classList.remove("hidden");
+  screen.innerHTML = "";
+
+  const content = document.createElement("div");
+  content.className = `result-screen-content ${mode}`;
+
+  if (mode === "error") {
+    renderErrorResult(content, errors);
+  } else {
+    renderSuccessResult(content, title);
+  }
+
+  const buttons = document.createElement("div");
+  buttons.className = `result-buttons ${mode}`;
+  const hasReviewWords = mode === "error" || (mode === "success" && getUnresolvedWordsByTopic(sessionTopicSlug).length > 0);
+
+  if (hasReviewWords) {
+    const reviewBtn = makeResultBtn("Отработать слова", startReviewSession);
+    reviewBtn.classList.add("review-primary");
+    buttons.appendChild(reviewBtn);
+  }
+
+  buttons.appendChild(makeResultBtn("Ещё слова этой орфограммы", () => startTopic(sessionTopicSlug)));
+  buttons.appendChild(makeResultBtn("Выбрать другую орфограмму", exitExercise));
+  content.appendChild(buttons);
+  screen.appendChild(content);
+}
+
+function renderSuccessResult(container, text) {
+  const sparkleLayer = document.createElement("div");
+  sparkleLayer.className = "result-sparkle-layer";
+
+  const sparkleLayout = [
+    { left: "4.39%", top: "5.86%", size: "20px", color: "#FCCC6B" },
+    { left: "16.99%", top: "4.17%", size: "12px", color: "#22C55E" },
+    { left: "30.47%", top: "6.77%", size: "16px", color: "#FF6B94" },
+    { left: "49.51%", top: "3.91%", size: "10px", color: "#3F58BB" },
+    { left: "66.50%", top: "5.99%", size: "18px", color: "#FFA301" },
+    { left: "80.37%", top: "4.30%", size: "14px", color: "#22C55E" },
+    { left: "93.26%", top: "7.42%", size: "10px", color: "#FF6B94" },
+    { left: "14.36%", top: "63.41%", size: "24px", color: "#FF6B94" },
+    { left: "34.67%", top: "33.59%", size: "18px", color: "#FFA301" },
+    { left: "79.98%", top: "35.81%", size: "24px", color: "#FFA301" },
+    { left: "92.97%", top: "56.25%", size: "16px", color: "#FF6B94" },
+    { left: "7.03%", top: "77.08%", size: "16px", color: "#3F58BB" },
+    { left: "53.81%", top: "83.46%", size: "18px", color: "#22C55E" },
+    { left: "86.13%", top: "78.39%", size: "16px", color: "#3F58BB" }
+  ];
+
+  sparkleLayout.forEach((sparkle, index) => {
+    const sparkleEl = document.createElement("span");
+    sparkleEl.className = "result-sparkle";
+    sparkleEl.setAttribute("aria-hidden", "true");
+    sparkleEl.style.setProperty("--left", sparkle.left);
+    sparkleEl.style.setProperty("--top", sparkle.top);
+    sparkleEl.style.setProperty("--size", sparkle.size);
+    sparkleEl.style.setProperty("--delay", `${(index % 8) * .08}s`);
+    sparkleEl.style.setProperty("--sparkle-color", sparkle.color);
+    sparkleLayer.appendChild(sparkleEl);
+  });
+
+  const headline = document.createElement("div");
+  headline.className = "result-headline";
+
+  const congrats = document.createElement("div");
+  congrats.className = "summary-congrats";
+  congrats.textContent = text;
+  headline.appendChild(congrats);
+
+  container.appendChild(sparkleLayer);
+  container.appendChild(headline);
+}
+
+function renderErrorResult(container, errors) {
+  const title = document.createElement("div");
+  title.className = "summary-subtitle";
+  title.textContent = errors.length === 1
+    ? "Запомни, как пишется это слово"
+    : "Запомни, как пишутся эти слова";
+  container.appendChild(title);
+
+  const wrap = document.createElement("div");
+  wrap.className = "summary-list-wrapper";
+  const list = document.createElement("ul");
+  list.className = "summary-list";
+
+  errors.forEach((word, index) => {
+    const item = document.createElement("li");
+    item.textContent = buildProblemDisplayWord(word);
+    item.style.animationDelay = `${index * 35}ms`;
+    list.appendChild(item);
+  });
+
+  wrap.appendChild(list);
+  container.appendChild(wrap);
+}
+
+function startReviewSession() {
+  const topic = wordsData[sessionTopicSlug];
+  if (!topic) return;
+  const words = getReviewWordsForCurrentSession();
+  if (!words.length) {
+    renderResultScreen("finished", []);
+    return;
+  }
+
+  sessionWords = words.slice(0, SESSION_WORD_LIMIT);
+  sessionIndex = 0;
+  sessionMistakes = [];
+  sessionAnsweredIndexes = new Set();
+  isReviewMode = true;
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenMain").classList.add("hidden");
+
+  if (topic.mechanic === "explain") {
+    ensureExplainScreen();
+    document.getElementById("screenExercise").classList.add("hidden");
+    document.getElementById("screenExplain").classList.remove("hidden");
+    document.getElementById("explainProgressFill").style.width = "0%";
+    syncExplainShortcutsHint();
+    showExplainQuestion();
+  } else {
+    document.getElementById("screenExplain")?.classList.add("hidden");
+    document.getElementById("screenExercise").classList.remove("hidden");
+    updateExerciseProgress();
+    showQuestion();
+  }
+}
+
+function getReviewWordsForCurrentSession() {
+  const topic = wordsData[sessionTopicSlug];
+  if (!topic) return [];
+  const wordsById = new Map(topic.words.map(word => [word.word_id, word]));
+  const source = lastErrorsForReview.length
+    ? lastErrorsForReview
+    : getUnresolvedWordsByTopic(sessionTopicSlug).map(item => wordsById.get(item.word_id)).filter(Boolean);
+  return uniqueWords(source.map(word => wordsById.get(word.word_id) || word).filter(Boolean));
+}
+
+let explainOptions = [];
+let explainLocked = false;
+let explainSelectedIndex = -1;
+let explainSelectionMode = "none";
+
+function ensureExplainScreen() {
+  if (document.getElementById("screenExplain")) return;
+  document.getElementById("screenExercise").insertAdjacentHTML("afterend", `
+    <div id="screenExplain" class="hidden">
+      <div class="exercise-header">
+        <button class="exercise-back-btn" onclick="exitExercise()" aria-label="Назад">
+          <img src="./assets/icons/chevron-left.svg" alt="">
+        </button>
+        <div id="explainTitle" class="exercise-title"></div>
+        <div class="exercise-progress-track"><div id="explainProgressFill" class="exercise-progress-fill"></div></div>
+      </div>
+      <div class="explain-body">
+        <div class="exercise-prompt">
+          <img src="./assets/icons/pencil.svg" alt="">
+          <span>Какое правило объясняет орфограмму?</span>
+        </div>
+        <div id="explainStage" class="explain-stage">
+          <div id="explainWordWrap" class="explain-word-wrap"></div>
+          <div id="explainOptions" class="explain-options"></div>
+        </div>
+        <div id="explainShortcuts" class="exercise-shortcuts hidden">← → — выбрать, <strong> ↳ </strong> — проверить</div>
+      </div>
+    </div>
+  `);
+}
+
+function syncExplainShortcutsHint() {
+  const hint = document.getElementById("explainShortcuts");
+  if (!hint) return;
+  const key = getStudentScopedHintKey(EXPLAIN_SHORTCUTS_HINT_KEY);
+  if (!isDesktopNavigation() || localStorage.getItem(key)) {
+    hint.classList.add("hidden");
+    return;
+  }
+  hint.classList.remove("hidden");
+  localStorage.setItem(key, "1");
+}
+
+function startExplainTopic(topicSlug) {
+  ensureExplainScreen();
+  sessionTopicSlug = topicSlug;
+  sessionWords = buildSessionWords(topicSlug);
+  if (!sessionWords.length) { alert("В этой теме пока нет слов."); return; }
+  sessionIndex = 0;
+  sessionMistakes = [];
+  sessionAnsweredIndexes = new Set();
+  isReviewMode = false;
+  lastErrorsForReview = [];
+  document.getElementById("screenMain").classList.add("hidden");
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenExplain").classList.remove("hidden");
+  document.getElementById("explainProgressFill").style.width = "0%";
+  syncExplainShortcutsHint();
+  showExplainQuestion();
+}
+
+function renderExplainWord(word) {
+  const raw = word.word_display || "";
+  const highlighted = raw.match(/\[(.)\]/);
+  let html;
+  if (highlighted) {
+    const idx = highlighted.index;
+    const before = raw.slice(0, idx);
+    const letter = highlighted[1];
+    const after = raw.slice(idx + highlighted[0].length);
+    html = `${escHtml(before)}<span class="explain-highlight">${escHtml(letter)}</span>${escHtml(after)}`;
+  } else {
+    html = escHtml(raw.replace("_", word.correct_letter || ""));
+  }
+  return `<div id="explainWord" class="explain-word">${html}</div>`;
+}
+
+function showExplainQuestion() {
+  ensureExplainScreen();
+  if (sessionIndex >= sessionWords.length) { finishSession(); return; }
+  const word = sessionWords[sessionIndex];
+  const title = wordsData[sessionTopicSlug]?.title || "Орфограммы";
+  document.getElementById("explainTitle").textContent = title;
+  updateExplainProgress();
+  document.getElementById("explainWordWrap").innerHTML = renderExplainWord(word);
+
+  explainLocked = false;
+  explainSelectedIndex = -1;
+  explainSelectionMode = "none";
+  explainOptions = shuffleArray([
+    { text: word.correct_rule, correct: true },
+    ...((word.wrong_rules || []).map(text => ({ text, correct: false })))
+  ].filter(opt => opt.text));
+
+  renderExplainOptions();
+}
+
+function renderExplainOptions() {
+  const wrap = document.getElementById("explainOptions");
+  wrap.innerHTML = explainOptions.map((opt, i) => `
+    <button type="button" class="explain-opt option-enter${explainSelectionMode === "keyboard" && i === explainSelectedIndex ? " active" : ""}" data-explain-answer="${i}" style="animation-delay:${i * 20}ms">
+      ${escHtml(opt.text)}
+    </button>
+  `).join("");
+  wrap.querySelectorAll(".explain-opt").forEach(btn => {
+    btn.addEventListener("click", () => selectExplainAnswer(Number(btn.dataset.explainAnswer), true, "pointer"));
+    btn.addEventListener("animationend", () => btn.classList.remove("option-enter"), { once: true });
+  });
+}
+
+function updateExplainButtons() {
+  document.querySelectorAll(".explain-opt").forEach((btn, i) => {
+    btn.classList.toggle("active", explainSelectionMode === "keyboard" && i === explainSelectedIndex);
+  });
+}
+
+function selectExplainAnswer(index, shouldSubmit, mode = "keyboard") {
+  if (explainLocked || index < 0 || index >= explainOptions.length) return;
+  explainSelectedIndex = index;
+  explainSelectionMode = mode;
+  updateExplainButtons();
+  document.querySelector(`[data-explain-answer="${index}"]`)?.focus();
+  if (shouldSubmit) explainAnswer(index);
+}
+
+function selectExplainNext() {
+  const next = explainSelectedIndex < 0 ? 0 : (explainSelectedIndex + 1) % explainOptions.length;
+  selectExplainAnswer(next, false, "keyboard");
+}
+
+function selectExplainPrev() {
+  const prev = explainSelectedIndex < 0 ? explainOptions.length - 1 : (explainSelectedIndex - 1 + explainOptions.length) % explainOptions.length;
+  selectExplainAnswer(prev, false, "keyboard");
+}
+
+function onExplainKeydown(e) {
+  if (!isDesktopNavigation() || explainLocked) return;
+  if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectExplainNext(); }
+  else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); selectExplainPrev(); }
+  else if (e.key === "Enter" || e.key === " ") {
+    if (explainSelectedIndex < 0) return;
+    e.preventDefault();
+    explainAnswer(explainSelectedIndex);
+  }
+}
+
+function explainAnswer(index) {
+  if (explainLocked) return;
+  const word = sessionWords[sessionIndex];
+  const opt = explainOptions[index];
+  const selected = document.querySelector(`[data-explain-answer="${index}"]`);
+  if (!word || !opt || !selected) return;
+  if (selected.disabled) return;
+
+  const isCorrect = Boolean(opt.correct);
+  selected.classList.remove("active");
+  selected.classList.add(isCorrect ? "correct" : "wrong");
+  selected.disabled = true;
+
+  if (isCorrect) {
+    explainLocked = true;
+    markWordAsSeen(word, true);
+    registerAnsweredWord();
+    document.querySelectorAll(".explain-opt").forEach((btn, i) => {
+      btn.disabled = true;
+      if (i !== index) btn.classList.add("dim");
+    });
+    setTimeout(() => { sessionIndex++; showExplainQuestion(); }, 1200);
+  } else {
+    markWordAsSeen(word, false);
+    sessionMistakes.push(word);
+    setTimeout(() => {
+      selected.classList.remove("wrong");
+      selected.disabled = false;
+      updateExplainButtons();
+    }, 400);
+  }
+}
+
+document.addEventListener("keydown", e => {
+  const screen = document.getElementById("screenExplain");
+  if (!screen || screen.classList.contains("hidden")) return;
+  onExplainKeydown(e);
+});
+
+// ── сохранение прогресса по слову — тот же паттерн, что в тренажёре ударений ──
+function registerTrainingVisitIfNeeded() {
+  if (!currentStudentId) return;
+  const flagKey = `orfo_visitCounted_${currentStudentId}`;
+  if (sessionStorage.getItem(flagKey)) return;
+  sessionStorage.setItem(flagKey, "1");
+
+  db.collection("students").doc(currentStudentId)
+    .collection("trainerProgress").doc("orfogrammy")
+    .set(
+      { trainingCount: firebase.firestore.FieldValue.increment(1) },
+      { merge: true }
+    )
+    .catch(e => console.warn("Не удалось увеличить счётчик заходов", e));
+}
+
+function markWordAsSeen(word, isCorrect) {
+  registerTrainingVisitIfNeeded();
+  const seenWords = getSeenWords();
+  const previous = getSeenWordEntry(seenWords, word) || {};
+  const previousStreak = Number(previous.correct_streak || 0);
+  const correctStreak = isCorrect ? previousStreak + 1 : 0;
+  const needsReview = isCorrect
+    ? (correctStreak < REVIEW_CORRECT_STREAK && Boolean(previous.needs_review))
+    : true;
+
+  const updated = {
+    ...previous,
+    word_id: word.word_id,
+    topic_slug: word.topic_slug,
+    display_word: buildDisplayWord(word),
+    problem_display_word: buildProblemDisplayWord(word),
+    seen: true,
+    seen_count: Number(previous.seen_count || 0) + 1,
+    correct_count: Number(previous.correct_count || 0) + (isCorrect ? 1 : 0),
+    wrong_count: Number(previous.wrong_count || 0) + (isCorrect ? 0 : 1),
+    correct_streak: correctStreak,
+    needs_review: needsReview,
+    last_answer_correct: isCorrect,
+    last_seen_at: new Date().toISOString()
+  };
+
+  seenWords[word.word_id] = updated;
+  saveSeenWords(seenWords);
+  saveWordProgressToFirebase(updated);
+}
+
+async function saveWordProgressToFirebase(entry) {
+  try {
+    await db.collection("students").doc(currentStudentId)
+      .collection("trainerProgress").doc("orfogrammy")
+      .collection("wordProgress").doc(entry.word_id)
+      .set(entry, { merge: true });
+  } catch (e) {
+    console.warn("Не удалось сохранить прогресс в Firebase, локально сохранено", e);
+  }
+}
+
+async function updateTrainerCabinetSummary() {
+  if (!currentStudentId) return;
+
+  const seen = getSeenWords();
+  let totalWords = 0;
+  let totalSeen = 0;
+  const topics = [];
+
+  Object.keys(wordsData).forEach(topicSlug => {
+    const topic = wordsData[topicSlug];
+    const words = topic.words;
+    totalWords += words.length;
+
+    let seenCount = 0;
+    let attemptedCount = 0;
+    let needsReviewCount = 0;
+    let lastSolvedAtMs = 0;
+
+    words.forEach(word => {
+      const entry = getSeenWordEntry(seen, word);
+      if (!entry) return;
+      seenCount++;
+      attemptedCount++;
+      if (isUnresolved(entry)) needsReviewCount++;
+      const ts = Date.parse(entry.last_seen_at || "");
+      if (!Number.isNaN(ts) && ts > lastSolvedAtMs) lastSolvedAtMs = ts;
+    });
+
+    totalSeen += seenCount;
+    if (seenCount === 0) return; // тему, которую ещё не трогали, в topics не кладём
+
+    topics.push({
+      name: topic.title,
+      slug: topicSlug,
+      category: topic.tabTitle,
+      seenCount,
+      totalCount: words.length,
+      percent: attemptedCount > 0
+        ? Math.round((needsReviewCount / attemptedCount) * 100)
+        : null,
+      lastSolvedAt: lastSolvedAtMs ? new Date(lastSolvedAtMs).toISOString() : null
+    });
+  });
+
+  const summary = {
+    name: "Орфография",
+    url: "orfogrammy.html",
+    completedPercent: totalWords ? Math.round((totalSeen / totalWords) * 100) : 0,
+    topics
+  };
+
+  try {
+    await db.collection("students").doc(currentStudentId)
+      .collection("trainerProgress").doc("orfogrammy")
+      .set(summary, { merge: true });
+  } catch (e) {
+    console.warn("Не удалось обновить сводку для кабинета тьютора", e);
+  }
+}
+
+function escHtml(s) { return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function logout() {
+  clearCode();
+  document.getElementById("screenMain").classList.add("hidden");
+  document.getElementById("screenExercise").classList.add("hidden");
+  document.getElementById("screenExplain")?.classList.add("hidden");
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenLogin").classList.remove("hidden");
+}
+
+async function showMain() {
+  setLoading(true);
+  document.getElementById("screenLogin").classList.add("hidden");
+  document.getElementById("screenExercise").classList.add("hidden");
+  document.getElementById("screenExplain")?.classList.add("hidden");
+  document.getElementById("screenResult").classList.add("hidden");
+  document.getElementById("screenMain").classList.remove("hidden");
+  renderStudentPill();
+  try {
+    await loadWordsFromSheet();
+    await loadSeenWordsFromFirebase(currentStudentId);
+  } catch (e) {
+    console.error(e);
+  }
+  renderTopicFilters();
+  renderTopicsGrid();
+  setLoginLoading(false);
+  setLoading(false);
+}
+
+const codeInput = document.getElementById("codeInput");
+const codeInputWrap = codeInput.closest(".code-input-wrap");
+
+function syncCodeCaret() {
+  codeInputWrap.classList.toggle("is-empty", codeInput.value.length === 0);
+}
+
+document.getElementById("loginBtn").onclick = () => loginWithCode(codeInput.value);
+codeInput.addEventListener("input", syncCodeCaret);
+codeInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") loginWithCode(e.target.value);
+});
+syncCodeCaret();
+
+// автологин, если код уже сохранён на этом устройстве
+auth.onAuthStateChanged(user => {
+  const saved = getSavedCode();
+  if (saved && user) {
+    currentStudentId = saved;
+    showMain();
+  }
+});
+</script>
+</body>
+</html>
