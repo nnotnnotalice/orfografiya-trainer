@@ -1223,6 +1223,13 @@
       font-size: 32px;
       line-height: 1;
       white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .exercise-word-piece {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .exercise-gap {
       min-width: 49px;
@@ -1261,6 +1268,18 @@
       padding: 0;
       border-radius: 20px;
       font-size: 36px;
+    }
+    .answer-option,
+    .answer-option:hover,
+    .answer-option:focus-visible,
+    .answer-option:active:not(:disabled),
+    .answer-option.correct,
+    .answer-option.wrong {
+      transform: none;
+      box-shadow: 0 5px 0 rgba(102,82,41,.18), 0 8px 18px rgba(115,92,46,.14);
+    }
+    .answer-option.option-enter {
+      animation: none;
     }
     .exercise-shortcuts { display: none; }
     #screenResult {
