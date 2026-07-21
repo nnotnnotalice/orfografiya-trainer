@@ -1169,19 +1169,20 @@
       text-align: center;
     }
     #screenExercise {
-      background: #D9D9D9;
-      padding: 20px 32px 36px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg);
+      padding: 0;
     }
     #screenExercise.hidden { display: none !important; }
     #screenExercise:not(.hidden) {
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      justify-content: center;
+      justify-content: flex-start;
     }
     #screenExercise .exercise-header,
     #screenExercise .exercise-body {
-      max-width: 430px;
       width: 100%;
     }
     #screenExercise .exercise-header {
@@ -1201,8 +1202,8 @@
       gap: 0;
       padding: 44px 24px 40px;
       background: var(--bg);
-      border-radius: 0 0 40px 40px;
-      box-shadow: 0 12px 16px rgba(0,0,0,.08);
+      border-radius: 0;
+      box-shadow: none;
     }
     .exercise-prompt {
       min-height: 72px;
@@ -1300,7 +1301,7 @@
     }
   }
   @media (max-width: 390px) {
-    #screenExercise { padding-inline: 14px; }
+    #screenExercise { padding-inline: 0; }
     #screenExercise .exercise-body { padding-inline: 18px; }
     .exercise-prompt { margin-bottom: 56px; }
     .exercise-word-card { margin-bottom: 64px; }
@@ -1314,7 +1315,7 @@
   <div class="login-shell">
     <div class="login-head">
       <div class="login-icon">
-        <img src="./assets/icons/login-icon.svg" alt="">
+        <img src="./assets/icons/login-auth-icon.svg" alt="">
       </div>
       <div class="login-title">Орфография</div>
     </div>
